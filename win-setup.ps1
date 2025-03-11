@@ -10,10 +10,10 @@ $XAML = @"
         <TextBlock Text="Windows Setup & Tweaks" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0"/>
         
         <ListBox Name="ListBoxOptions" Foreground="Black" Background="White" Margin="100,80,100,150">
-            <ListBoxItem Content="1. Select and Install Software"/>
-            <ListBoxItem Content="2. Select and Apply Windows Tweaks"/>
-            <ListBoxItem Content="3. Select and Apply System Optimization"/>
-            <ListBoxItem Content="4. Exit"/>
+            <ListBoxItem Content="Select and Install Software"/>
+            <ListBoxItem Content="Select and Apply Windows Tweaks"/>
+            <ListBoxItem Content="Select and Apply System Optimization"/>
+            <ListBoxItem Content="Exit"/>
         </ListBox>
         
         <Button Name="ProceedButton" Content="Proceed" Width="120" Height="40" Background="#0078D7" Foreground="White" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,20,0,30"/>
@@ -42,7 +42,7 @@ $Window.ShowDialog()
 # Function to Select Package Manager
 function Select-Package-Manager {
     $choice = [System.Windows.MessageBox]::Show("Do you want to use Winget instead of Chocolatey?", "Package Manager Selection", [System.Windows.MessageBoxButton]::YesNo)
-    if ($choice -eq "Yes") {
+    if ($choice -eq [System.Windows.MessageBoxResult]::Yes) {
         Show-Software-UI -PackageManager "winget"
     } else {
         Show-Software-UI -PackageManager "choco"
