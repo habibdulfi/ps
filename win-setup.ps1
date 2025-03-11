@@ -1,5 +1,4 @@
-# Modern System Toolkit with Software Installation, Tweaks, Optimization & Configuration
-
+# Load WPF assemblies
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName System.Windows.Forms
 
@@ -8,14 +7,14 @@ Add-Type -AssemblyName System.Windows.Forms
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="System Toolkit" Height="650" Width="750" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    Title="System Toolkit" Height="450" Width="650" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Label Content="Welcome to System Toolkit" HorizontalAlignment="Center" Margin="0,20,0,0" VerticalAlignment="Top" FontSize="22" FontWeight="Bold"/>
-        <Button x:Name="SoftwareInstallButton" Content="Software Installation" HorizontalAlignment="Center" Margin="0,80,0,0" VerticalAlignment="Top" Width="350" Height="40" FontSize="14"/>
-        <Button x:Name="TweaksButton" Content="System Tweaks" HorizontalAlignment="Center" Margin="0,130,0,0" VerticalAlignment="Top" Width="350" Height="40" FontSize="14"/>
-        <Button x:Name="OptimizationButton" Content="System Optimization" HorizontalAlignment="Center" Margin="0,180,0,0" VerticalAlignment="Top" Width="350" Height="40" FontSize="14"/>
-        <Button x:Name="ConfigButton" Content="System Configuration" HorizontalAlignment="Center" Margin="0,230,0,0" VerticalAlignment="Top" Width="350" Height="40" FontSize="14"/>
-        <Button x:Name="ExitButton" Content="Exit" HorizontalAlignment="Center" Margin="0,280,0,0" VerticalAlignment="Top" Width="150" Height="30" FontSize="14"/>
+        <Label Content="Welcome to System Toolkit" HorizontalAlignment="Center" Margin="0,20,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold"/>
+        <Button x:Name="SoftwareInstallButton" Content="Software Installation" HorizontalAlignment="Center" Margin="0,80,0,0" VerticalAlignment="Top" Width="200" Height="40" FontSize="14"/>
+        <Button x:Name="TweaksButton" Content="Tweaks" HorizontalAlignment="Center" Margin="0,130,0,0" VerticalAlignment="Top" Width="200" Height="40" FontSize="14"/>
+        <Button x:Name="OptimizationButton" Content="System Optimization" HorizontalAlignment="Center" Margin="0,180,0,0" VerticalAlignment="Top" Width="200" Height="40" FontSize="14"/>
+        <Button x:Name="ConfigButton" Content="Configuration" HorizontalAlignment="Center" Margin="0,230,0,0" VerticalAlignment="Top" Width="200" Height="40" FontSize="14"/>
+        <Button x:Name="ExitButton" Content="Exit" HorizontalAlignment="Center" Margin="0,280,0,0" VerticalAlignment="Top" Width="100" Height="30" FontSize="14"/>
     </Grid>
 </Window>
 "@
@@ -31,42 +30,138 @@ $OptimizationButton = $MainMenuWindow.FindName("OptimizationButton")
 $ConfigButton = $MainMenuWindow.FindName("ConfigButton")
 $ExitButton = $MainMenuWindow.FindName("ExitButton")
 
+# Function to run backend tasks and display output
+function Invoke-BackendTask {
+    param (
+        [ScriptBlock]$ScriptBlock
+    )
+    # Start a job to run the task
+    $job = Start-ThreadJob -ScriptBlock $ScriptBlock
+
+    # Monitor the job and display output in real-time
+    while ($job.State -eq "Running") {
+        Receive-Job -Job $job | ForEach-Object {
+            Write-Host $_
+        }
+        Start-Sleep -Milliseconds 100
+    }
+
+    # Get final output
+    Receive-Job -Job $job | ForEach-Object {
+        Write-Host $_
+    }
+
+    # Clean up the job
+    Remove-Job -Job $job
+}
+
 # Define Software Installation Submenu
 $SoftwareInstallButton.Add_Click({
+    # Define the XAML for the Software Installation Submenu
     [xml]$SoftwareXAML = @"
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Software Installation" Height="650" Width="750" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    Title="Software Installation" Height="500" Width="700" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Label Content="Select a Package Manager:" HorizontalAlignment="Left" Margin="20,20,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <RadioButton x:Name="WingetRadio" Content="Winget" HorizontalAlignment="Left" Margin="20,50,0,0" VerticalAlignment="Top" FontSize="14"/>
-        <RadioButton x:Name="ChocoRadio" Content="Chocolatey" HorizontalAlignment="Left" Margin="20,80,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <RadioButton x:Name="WingetRadio" Content="Winget" HorizontalAlignment="Left" Margin="20,60,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <RadioButton x:Name="ChocoRadio" Content="Chocolatey" HorizontalAlignment="Left" Margin="20,90,0,0" VerticalAlignment="Top" FontSize="14"/>
         
-        <Label Content="Browsers:" HorizontalAlignment="Left" Margin="20,120,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <CheckBox x:Name="ChromeCheck" Content="Google Chrome" HorizontalAlignment="Left" Margin="20,150,0,0" VerticalAlignment="Top" FontSize="14"/>
-        <CheckBox x:Name="FirefoxCheck" Content="Mozilla Firefox" HorizontalAlignment="Left" Margin="20,180,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <Label Content="Browsers:" HorizontalAlignment="Left" Margin="20,130,0,0" VerticalAlignment="Top" FontSize="16"/>
+        <CheckBox x:Name="ChromeCheck" Content="Google Chrome" HorizontalAlignment="Left" Margin="20,160,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="FirefoxCheck" Content="Mozilla Firefox" HorizontalAlignment="Left" Margin="20,190,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="EdgeCheck" Content="Microsoft Edge" HorizontalAlignment="Left" Margin="20,220,0,0" VerticalAlignment="Top" FontSize="14"/>
         
-        <Label Content="Development Tools:" HorizontalAlignment="Left" Margin="300,120,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <CheckBox x:Name="GitCheck" Content="Git" HorizontalAlignment="Left" Margin="300,150,0,0" VerticalAlignment="Top" FontSize="14"/>
-        <CheckBox x:Name="PythonCheck" Content="Python" HorizontalAlignment="Left" Margin="300,180,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <Label Content="Communication:" HorizontalAlignment="Left" Margin="20,260,0,0" VerticalAlignment="Top" FontSize="16"/>
+        <CheckBox x:Name="ZoomCheck" Content="Zoom" HorizontalAlignment="Left" Margin="20,290,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="SlackCheck" Content="Slack" HorizontalAlignment="Left" Margin="20,320,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="TeamsCheck" Content="Microsoft Teams" HorizontalAlignment="Left" Margin="20,350,0,0" VerticalAlignment="Top" FontSize="14"/>
         
-        <Label Content="Media Players:" HorizontalAlignment="Left" Margin="20,220,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <CheckBox x:Name="VLCCheck" Content="VLC Media Player" HorizontalAlignment="Left" Margin="20,250,0,0" VerticalAlignment="Top" FontSize="14"/>
-        <CheckBox x:Name="SpotifyCheck" Content="Spotify" HorizontalAlignment="Left" Margin="20,280,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <Label Content="Utilities:" HorizontalAlignment="Left" Margin="350,130,0,0" VerticalAlignment="Top" FontSize="16"/>
+        <CheckBox x:Name="SevenZipCheck" Content="7-Zip" HorizontalAlignment="Left" Margin="350,160,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="WinRARCheck" Content="WinRAR" HorizontalAlignment="Left" Margin="350,190,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="NotepadPlusCheck" Content="Notepad++" HorizontalAlignment="Left" Margin="350,220,0,0" VerticalAlignment="Top" FontSize="14"/>
         
-        <Label Content="Utilities:" HorizontalAlignment="Left" Margin="300,220,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <CheckBox x:Name="VSCodeCheck" Content="Visual Studio Code" HorizontalAlignment="Left" Margin="300,250,0,0" VerticalAlignment="Top" FontSize="14"/>
-        <CheckBox x:Name="SevenZipCheck" Content="7-Zip" HorizontalAlignment="Left" Margin="300,280,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <Label Content="Development Tools:" HorizontalAlignment="Left" Margin="350,260,0,0" VerticalAlignment="Top" FontSize="16"/>
+        <CheckBox x:Name="VSCodeCheck" Content="Visual Studio Code" HorizontalAlignment="Left" Margin="350,290,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="GitCheck" Content="Git" HorizontalAlignment="Left" Margin="350,320,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="DockerCheck" Content="Docker" HorizontalAlignment="Left" Margin="350,350,0,0" VerticalAlignment="Top" FontSize="14"/>
         
-        <Button x:Name="InstallButton" Content="Install" HorizontalAlignment="Center" Margin="0,350,0,0" VerticalAlignment="Top" Width="120" Height="40" FontSize="14"/>
+        <Button x:Name="InstallButton" Content="Install" HorizontalAlignment="Center" Margin="0,400,0,0" VerticalAlignment="Top" Width="100" Height="30" FontSize="14"/>
     </Grid>
 </Window>
 "@
 
-    # Load Software Installation Window
+    # Load the Software Installation Submenu XAML
     $SoftwareReader = (New-Object System.Xml.XmlNodeReader $SoftwareXAML)
     $SoftwareWindow = [Windows.Markup.XamlReader]::Load($SoftwareReader)
+
+    # Connect to Software Installation Submenu UI elements
+    $WingetRadio = $SoftwareWindow.FindName("WingetRadio")
+    $ChocoRadio = $SoftwareWindow.FindName("ChocoRadio")
+    $ChromeCheck = $SoftwareWindow.FindName("ChromeCheck")
+    $FirefoxCheck = $SoftwareWindow.FindName("FirefoxCheck")
+    $EdgeCheck = $SoftwareWindow.FindName("EdgeCheck")
+    $ZoomCheck = $SoftwareWindow.FindName("ZoomCheck")
+    $SlackCheck = $SoftwareWindow.FindName("SlackCheck")
+    $TeamsCheck = $SoftwareWindow.FindName("TeamsCheck")
+    $SevenZipCheck = $SoftwareWindow.FindName("SevenZipCheck")
+    $WinRARCheck = $SoftwareWindow.FindName("WinRARCheck")
+    $NotepadPlusCheck = $SoftwareWindow.FindName("NotepadPlusCheck")
+    $VSCodeCheck = $SoftwareWindow.FindName("VSCodeCheck")
+    $GitCheck = $SoftwareWindow.FindName("GitCheck")
+    $DockerCheck = $SoftwareWindow.FindName("DockerCheck")
+    $InstallButton = $SoftwareWindow.FindName("InstallButton")
+
+    # Define Install Button Click Event
+    $InstallButton.Add_Click({
+        if ($WingetRadio.IsChecked) {
+            $PackageManager = "winget"
+        } elseif ($ChocoRadio.IsChecked) {
+            $PackageManager = "choco"
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("Please select a package manager!", "Error")
+            return
+        }
+
+        # Define the script block for installation
+        $ScriptBlock = {
+            param ($PackageManager, $Selections)
+            foreach ($item in $Selections.GetEnumerator()) {
+                if ($item.Value) {
+                    Write-Host "Installing $($item.Key) using $PackageManager..."
+                    if ($PackageManager -eq "winget") {
+                        winget install $item.Key
+                    } else {
+                        choco install $item.Key -y
+                    }
+                }
+            }
+            Write-Host "Installation complete!"
+        }
+
+        # Prepare selections
+        $Selections = @{
+            "Google.Chrome" = $ChromeCheck.IsChecked
+            "Mozilla.Firefox" = $FirefoxCheck.IsChecked
+            "Microsoft.Edge" = $EdgeCheck.IsChecked
+            "Zoom.Zoom" = $ZoomCheck.IsChecked
+            "SlackTechnologies.Slack" = $SlackCheck.IsChecked
+            "Microsoft.Teams" = $TeamsCheck.IsChecked
+            "7zip.7zip" = $SevenZipCheck.IsChecked
+            "RARLab.WinRAR" = $WinRARCheck.IsChecked
+            "Notepad++.Notepad++" = $NotepadPlusCheck.IsChecked
+            "Microsoft.VisualStudioCode" = $VSCodeCheck.IsChecked
+            "Git.Git" = $GitCheck.IsChecked
+            "Docker.DockerDesktop" = $DockerCheck.IsChecked
+        }
+
+        # Run the installation task in the background
+        Invoke-BackendTask -ScriptBlock $ScriptBlock -ArgumentList $PackageManager, $Selections
+    })
+
+    # Show the Software Installation Submenu
     $SoftwareWindow.ShowDialog() | Out-Null
 })
 
@@ -76,4 +171,4 @@ $ExitButton.Add_Click({
 })
 
 # Show the Main Menu
-$MainMenuWindow.ShowDialog() | Out-Null
+$MainMenuWindow.ShowDialog() | Out-Nul
