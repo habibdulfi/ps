@@ -13,10 +13,10 @@ $XAML = @"
                 <TextBlock Text="Windows Setup & Tweaks" Foreground="White" FontSize="22" HorizontalAlignment="Center" Margin="0,10,0,20"/>
                 
                 <ListBox Name="ListBoxOptions" Foreground="Black" Background="White" Height="150" FontSize="14">
-                    <ListBoxItem Content="1. Select and Install Software"/>
-                    <ListBoxItem Content="2. Select and Apply Windows Tweaks"/>
-                    <ListBoxItem Content="3. Select and Apply System Optimization"/>
-                    <ListBoxItem Content="4. Exit"/>
+                    <ListBoxItem Content="Select and Install Software"/>
+                    <ListBoxItem Content="Select and Apply Windows Tweaks"/>
+                    <ListBoxItem Content="Select and Apply System Optimization"/>
+                    <ListBoxItem Content="Exit"/>
                 </ListBox>
                 
                 <Button Name="ProceedButton" Content="Proceed" Width="150" Height="45" Background="#0078D7" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,20,0,0"/>
@@ -57,19 +57,20 @@ function Select-Package-Manager {
 # Function to Show Software Selection UI
 function Show-Software-UI {
     param ($PackageManager)
+    
     $SoftwareXAML = @"
-    <Window Title="Select Software" Height="450" Width="550" Background="#1E1E1E">
-        <Grid>
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
-                <TextBlock Text="Select Software to Install" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,10,0,20"/>
-                <ScrollViewer Height="250">
-                    <StackPanel Name="SoftwarePanel" Background="#333" Padding="10"/>
-                </ScrollViewer>
-                <Button Name="InstallButton" Content="Install" Width="150" Height="40" Background="#0078D7" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,20,0,0"/>
-            </StackPanel>
-        </Grid>
-    </Window>
-    "@
+<Window Title="Select Software" Height="450" Width="550" Background="#1E1E1E">
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
+            <TextBlock Text="Select Software to Install" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,10,0,20"/>
+            <ScrollViewer Height="250">
+                <StackPanel Name="SoftwarePanel" Background="#333" Padding="10"/>
+            </ScrollViewer>
+            <Button Name="InstallButton" Content="Install" Width="150" Height="40" Background="#0078D7" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>
+"@
     
     $Reader = [System.Xml.XmlReader]::Create([System.IO.StringReader]$SoftwareXAML)
     $SoftwareWindow = [Windows.Markup.XamlReader]::Load($Reader)
