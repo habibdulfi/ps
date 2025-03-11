@@ -5,23 +5,20 @@ Add-Type -AssemblyName PresentationFramework
 # Create the Main Window with Metro Theme
 $XAML = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Title="Windows Setup & Tweaks" Height="500" Width="650" Background="#1E1E1E">
     <Grid>
-        <Controls:MetroWindow Title="Windows Setup & Tweaks" GlowBrush="#0078D7" Background="#2D2D30" Width="600" Height="450">
-            <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
-                <TextBlock Text="Windows Setup & Tweaks" Foreground="White" FontSize="22" HorizontalAlignment="Center" Margin="0,10,0,20"/>
-                
-                <ListBox Name="ListBoxOptions" Foreground="Black" Background="White" Height="150" FontSize="14">
-                    <ListBoxItem Content="Select and Install Software"/>
-                    <ListBoxItem Content="Select and Apply Windows Tweaks"/>
-                    <ListBoxItem Content="Select and Apply System Optimization"/>
-                    <ListBoxItem Content="Exit"/>
-                </ListBox>
-                
-                <Button Name="ProceedButton" Content="Proceed" Width="150" Height="45" Background="#0078D7" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,20,0,0"/>
-            </StackPanel>
-        </Controls:MetroWindow>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
+            <TextBlock Text="Windows Setup & Tweaks" Foreground="White" FontSize="22" HorizontalAlignment="Center" Margin="0,10,0,20"/>
+            
+            <ListBox Name="ListBoxOptions" Foreground="Black" Background="White" Height="150" FontSize="14">
+                <ListBoxItem Content="Select and Install Software"/>
+                <ListBoxItem Content="Select and Apply Windows Tweaks"/>
+                <ListBoxItem Content="Select and Apply System Optimization"/>
+                <ListBoxItem Content="Exit"/>
+            </ListBox>
+            
+            <Button Name="ProceedButton" Content="Proceed" Width="150" Height="45" Background="#0078D7" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+        </StackPanel>
     </Grid>
 </Window>
 "@
@@ -59,14 +56,14 @@ function Show-Software-UI {
     param ($PackageManager)
     
     $SoftwareXAML = @"
-<Window Title="Select Software" Height="450" Width="550" Background="#1E1E1E">
+<Window Title='Select Software' Height='450' Width='550' Background='#1E1E1E'>
     <Grid>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
-            <TextBlock Text="Select Software to Install" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,10,0,20"/>
-            <ScrollViewer Height="250">
-                <StackPanel Name="SoftwarePanel" Background="#333" Padding="10"/>
+        <StackPanel VerticalAlignment='Center' HorizontalAlignment='Center' Width='500'>
+            <TextBlock Text='Select Software to Install' Foreground='White' FontSize='18' HorizontalAlignment='Center' Margin='0,10,0,20'/>
+            <ScrollViewer Height='250'>
+                <StackPanel Name='SoftwarePanel' Background='#333' Padding='10'/>
             </ScrollViewer>
-            <Button Name="InstallButton" Content="Install" Width="150" Height="40" Background="#0078D7" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <Button Name='InstallButton' Content='Install' Width='150' Height='40' Background='#0078D7' Foreground='White' FontSize='16' HorizontalAlignment='Center' Margin='0,20,0,0'/>
         </StackPanel>
     </Grid>
 </Window>
