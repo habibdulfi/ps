@@ -165,10 +165,72 @@ $SoftwareInstallButton.Add_Click({
     $SoftwareWindow.ShowDialog() | Out-Null
 })
 
+# Define Tweaks Submenu
+$TweaksButton.Add_Click({
+    # Define the XAML for the Tweaks Submenu
+    [xml]$TweaksXAML = @"
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Tweaks" Height="400" Width="600" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Label Content="Select Tweaks to Apply:" HorizontalAlignment="Left" Margin="20,20,0,0" VerticalAlignment="Top" FontSize="16"/>
+        <CheckBox x:Name="DisableCortanaCheck" Content="Disable Cortana" HorizontalAlignment="Left" Margin="20,60,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="DisableTelemetryCheck" Content="Disable Telemetry" HorizontalAlignment="Left" Margin="20,90,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="EnableDarkModeCheck" Content="Enable Dark Mode" HorizontalAlignment="Left" Margin="20,120,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="DisableDefenderCheck" Content="Disable Windows Defender" HorizontalAlignment="Left" Margin="20,150,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <CheckBox x:Name="DisableBingSearchCheck" Content="Disable Bing Search in Start Menu" HorizontalAlignment="Left" Margin="20,180,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <Button x:Name="ApplyTweaksButton" Content="Apply" HorizontalAlignment="Center" Margin="0,270,0,0" VerticalAlignment="Top" Width="100" Height="30" FontSize="14"/>
+    </Grid>
+</Window>
+"@
+
+    # Load the Tweaks Submenu XAML
+    $TweaksReader = (New-Object System.Xml.XmlNodeReader $TweaksXAML)
+    $TweaksWindow = [Windows.Markup.XamlReader]::Load($TweaksReader)
+
+    # Connect to Tweaks Submenu UI elements
+    $DisableCortanaCheck = $TweaksWindow.FindName("DisableCortanaCheck")
+    $DisableTelemetryCheck = $TweaksWindow.FindName("DisableTelemetryCheck")
+    $EnableDarkModeCheck = $TweaksWindow.FindName("EnableDarkModeCheck")
+    $DisableDefenderCheck = $TweaksWindow.FindName("DisableDefenderCheck")
+    $DisableBingSearchCheck = $TweaksWindow.FindName("DisableBingSearchCheck")
+    $ApplyTweaksButton = $TweaksWindow.FindName("ApplyTweaksButton")
+
+    # Define Apply Button Click Event
+    $ApplyTweaksButton.Add_Click({
+        if ($DisableCortanaCheck.IsChecked) {
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "AllowCortana" -Value 0
+            Write-Host "Cortana disabled."
+        }
+        if ($DisableTelemetryCheck.IsChecked) {
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Value 0
+            Write-Host "Telemetry disabled."
+        }
+        if ($EnableDarkModeCheck.IsChecked) {
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
+            Write-Host "Dark mode enabled."
+        }
+        if ($DisableDefenderCheck.IsChecked) {
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Value 1
+            Write-Host "Windows Defender disabled."
+        }
+        if ($DisableBingSearchCheck.IsChecked) {
+            Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Value 0
+            Write-Host "Bing search in Start Menu disabled."
+        }
+
+        [System.Windows.Forms.MessageBox]::Show("Tweaks applied successfully!", "Success")
+    })
+
+    # Show the Tweaks Submenu
+    $TweaksWindow.ShowDialog() | Out-Null
+})
+
 # Define Exit Button Click Event
 $ExitButton.Add_Click({
     $MainMenuWindow.Close()
 })
 
 # Show the Main Menu
-$MainMenuWindow.ShowDialog() | Out-Nul
+$MainMenuWindow.ShowDialog() | Out-Null
