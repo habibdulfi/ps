@@ -51,8 +51,8 @@ function Invoke-BackendTask {
         Write-Host $_
     }
 
-    # Clean up the job
-    Remove-Job -Job $job
+    # Clean up the job (forcefully remove it if it's still running)
+    Remove-Job -Job $job -Force
 }
 
 # Define Software Installation Submenu
