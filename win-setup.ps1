@@ -1,6 +1,8 @@
 # Interactive Windows Setup Script with UI and Package Selection
 
 Add-Type -AssemblyName System.Windows.Forms
+
+# Create the Main Form
 $Form = New-Object System.Windows.Forms.Form
 $Form.Text = "Windows Setup & Tweaks"
 $Form.Size = New-Object System.Drawing.Size(500,400)
@@ -34,8 +36,8 @@ function Process-Selection {
     param ($Selection)
     switch ($Selection) {
         0 { Select-Package-Manager }
-        1 { Apply-Tweaks }
-        2 { Optimize-System }
+        1 { Show-Tweaks-UI }
+        2 { Show-Optimizations-UI }
         3 { Exit }
         default { Write-Host "Invalid option! Please select again." }
     }
@@ -43,19 +45,22 @@ function Process-Selection {
 
 # Function to Select Package Manager
 function Select-Package-Manager {
-    $choice = [System.Windows.Forms.MessageBox]::Show("Do you want to use Winget instead of Chocolatey?", "Package Manager Selection", 4)
-    if ($choice -eq "Yes") {
-        Install-Software -PackageManager "winget"
+    $choice = [System.Windows.Forms.MessageBox]::Show("Do you want to use Winget instead of Chocolatey?", "Package Manager Selection", [System.Windows.Forms.MessageBoxButtons]::YesNo)
+    if ($choice -eq [System.Windows.Forms.DialogResult]::Yes) {
+        Show-Software-UI -PackageManager "winget"
     } else {
-        Install-Software -PackageManager "choco"
+        Show-Software-UI -PackageManager "choco"
     }
 }
 
-# Function to Select and Install Software
-function Install-Software {
+# Function to Show Software Selection UI
+function Show-Software-UI {
     param ($PackageManager)
+    $SoftwareForm = New-Object System.Windows.Forms.Form
+    $SoftwareForm.Text = "Select Software to Install"
+    $SoftwareForm.Size = New-Object System.Drawing.Size(400,400)
     
-    $softwareList = @{ 
+    $SoftwareList = @{
         "Google Chrome" = "googlechrome"
         "VS Code" = "vscode"
         "7-Zip" = "7zip"
@@ -68,35 +73,106 @@ function Install-Software {
         "Brave Browser" = "brave"
     }
     
-    $selectedSoftware = [System.Windows.Forms.MessageBox]::Show("Do you want to install all software?", "Software Installation", 4)
-    
-    if ($PackageManager -eq "choco" -and -Not (Get-Command choco -ErrorAction SilentlyContinue)) {
-        Write-Host "Installing Chocolatey..."
-        Set-ExecutionPolicy Bypass -Scope Process -Force;
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
-        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    $Checkboxes = @()
+    $y = 20
+    foreach ($key in $SoftwareList.Keys) {
+        $cb = New-Object System.Windows.Forms.CheckBox
+        $cb.Text = $key
+        $cb.Location = New-Object System.Drawing.Point(20, $y)
+        $SoftwareForm.Controls.Add($cb)
+        $Checkboxes += $cb
+        $y += 30
     }
     
-    if ($selectedSoftware -eq "Yes") {
-        foreach ($software in $softwareList.Values) {
-            & $PackageManager install $software -y
+    $InstallButton = New-Object System.Windows.Forms.Button
+    $InstallButton.Text = "Install Selected Software"
+    $InstallButton.Location = New-Object System.Drawing.Point(120, $y + 20)
+    $InstallButton.Add_Click({
+        foreach ($cb in $Checkboxes) {
+            if ($cb.Checked) {
+                & $PackageManager install $SoftwareList[$cb.Text] -y
+            }
         }
+        $SoftwareForm.Close()
+    })
+    $SoftwareForm.Controls.Add($InstallButton)
+    
+    $SoftwareForm.ShowDialog()
+}
+
+# Function to Show Windows Tweaks UI
+function Show-Tweaks-UI {
+    $TweaksForm = New-Object System.Windows.Forms.Form
+    $TweaksForm.Text = "Select Windows Tweaks"
+    $TweaksForm.Size = New-Object System.Drawing.Size(400,300)
+    
+    $TweakOptions = @{
+        "Disable OneDrive" = "reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\OneDrive\" /v \"DisableFileSyncNGSC\" /t REG_DWORD /d 1 /f"
+        "Disable Telemetry" = "reg add \"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection\" /v AllowTelemetry /t REG_DWORD /d 0 /f"
+        "Enable Dark Mode" = "reg add \"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize\" /v AppsUseLightTheme /t REG_DWORD /d 0 /f"
     }
-    Write-Host "Software installation completed!"
+    
+    $Checkboxes = @()
+    $y = 20
+    foreach ($key in $TweakOptions.Keys) {
+        $cb = New-Object System.Windows.Forms.CheckBox
+        $cb.Text = $key
+        $cb.Location = New-Object System.Drawing.Point(20, $y)
+        $TweaksForm.Controls.Add($cb)
+        $Checkboxes += $cb
+        $y += 30
+    }
+    
+    $ApplyButton = New-Object System.Windows.Forms.Button
+    $ApplyButton.Text = "Apply Selected Tweaks"
+    $ApplyButton.Location = New-Object System.Drawing.Point(120, $y + 20)
+    $ApplyButton.Add_Click({
+        foreach ($cb in $Checkboxes) {
+            if ($cb.Checked) {
+                Invoke-Expression $TweakOptions[$cb.Text]
+            }
+        }
+        $TweaksForm.Close()
+    })
+    $TweaksForm.Controls.Add($ApplyButton)
+    
+    $TweaksForm.ShowDialog()
 }
 
-# Function to Select and Apply Windows Tweaks
-function Apply-Tweaks {
-    Write-Host "Applying Windows Tweaks..."
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\OneDrive" /v "DisableFileSyncNGSC" /t REG_DWORD /d 1 /f
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
-    Write-Host "Tweaks Applied Successfully!"
-}
-
-# Function to Select and Apply System Optimization
-function Optimize-System {
-    Write-Host "Optimizing System Performance..."
-    powercfg -h off  # Disables hibernation
-    bcdedit /set disabledynamictick yes
-    Write-Host "System Optimization Completed!"
+# Function to Show System Optimizations UI
+function Show-Optimizations-UI {
+    $OptForm = New-Object System.Windows.Forms.Form
+    $OptForm.Text = "Select System Optimizations"
+    $OptForm.Size = New-Object System.Drawing.Size(400,300)
+    
+    $OptOptions = @{
+        "Disable Hibernation" = "powercfg -h off"
+        "Speed up Boot Time" = "bcdedit /set disabledynamictick yes"
+    }
+    
+    $Checkboxes = @()
+    $y = 20
+    foreach ($key in $OptOptions.Keys) {
+        $cb = New-Object System.Windows.Forms.CheckBox
+        $cb.Text = $key
+        $cb.Location = New-Object System.Drawing.Point(20, $y)
+        $OptForm.Controls.Add($cb)
+        $Checkboxes += $cb
+        $y += 30
+    }
+    
+    $ApplyButton = New-Object System.Windows.Forms.Button
+    $ApplyButton.Text = "Apply Selected Optimizations"
+    $ApplyButton.Location = New-Object System.Drawing.Point(120, $y + 20)
+    $ApplyButton.Add_Click({
+        foreach ($cb in $Checkboxes) {
+            if ($cb.Checked) {
+                Invoke-Expression $OptOptions[$cb.Text]
+            }
+        }
+        $OptForm.Close()
+    })
+    $OptForm.Controls.Add($ApplyButton)
+    
+    $OptForm.ShowDialog()
 }
